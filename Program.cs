@@ -1,13 +1,21 @@
-﻿using System.Collections.Concurrent;
-using JsonServices;
+﻿using JsonServices;
+using Microsoft.Extensions.DependencyInjection;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Caching.Memory;
 using File = System.IO.File;
 
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+builder.Services.AddMemoryCache();
+using IHost host = builder.Build();
+
+IMemoryCache cache =
+    host.Services.GetRequiredService<IMemoryCache>();
 
 JsonServiceFactory jsonServiceFactory = new JsonServiceFactory();
 var prettifier = jsonServiceFactory.GetPrettifier;
@@ -111,6 +119,8 @@ async Task BotOnMessageReceived(ITelegramBotClient bot, Message message, Cancell
         try
         {
             fileFormatter.FileWriter(prettyText, message.Chat.Id.ToString());
+            
+            await SendInlineKeyboard(bot, message, cancellationToken);
         }
         catch (Exception e)
         {
@@ -119,8 +129,6 @@ async Task BotOnMessageReceived(ITelegramBotClient bot, Message message, Cancell
 
             return;
         }
-        
-        await SendInlineKeyboard(bot, message, cancellationToken);
     }
 }
 
@@ -134,22 +142,16 @@ async Task BotOnCallbackQueryReceived(ITelegramBotClient bot, CallbackQuery call
         _ => throw new ArgumentOutOfRangeException()
     };
 
-    if (fName == "")
-    {
-        await SendMessage(bot, callbackQuery.Message.Chat.Id, "Type file name", cancellationToken);
-        
-        var update =await bot.GetUpdatesAsync(
-            limit: 1,
-            allowedUpdates: new UpdateType[]
-                {UpdateType.Message}
-        );
-
-        var message = update[0].Message;
-        if (message != null) fName = message.Text;
-            else await SendMessage(bot, callbackQuery.Message.Chat.Id, "Invalid name", cancellationToken);
-        
-        return;
-    }
+    // if (fName == "")
+    // {
+    //     await SendMessage(bot, callbackQuery.Message.Chat.Id, "Type file name", cancellationToken);
+    //     cache.Set()
+    //     var message = update[0].Message;
+    //     if (message != null) fName = message.Text;
+    //         else await SendMessage(bot, callbackQuery.Message.Chat.Id, "Invalid name", cancellationToken);
+    //     
+    //     return;
+    // }
     
     var prettyFilePath = fileFormatter.GetFilePath(callbackQuery.Message.Chat.Id.ToString());
             
