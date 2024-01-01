@@ -1,28 +1,71 @@
+using System.Text.Json;
+using System.Xml;
+using System.Xml.Linq;
 using Newtonsoft.Json.Linq;
 
 namespace JsonServices.Formatter;
 
 public class Prettifier : IPrettifier
 {
-    private string _inputJson;
+    private string _inputText;
 
-    public Prettifier SetText(string json)
+    public Prettifier SetText(string text)
     {
-        _inputJson = json;
+        _inputText = text;
 
         return this;
     }
     
-    public string Prettify()
+    public string PrettifyJson()
     {
         try
         {
-            return JToken.Parse(_inputJson).ToString();
+            return JToken.Parse(_inputText).ToString();
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
+        }
+    }
+    
+    public string PrettifyXml()
+    {
+        try
+        {
+            return XDocument.Parse(_inputText).ToString();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+    
+    public bool IsValidXml(string xmlString)
+    {
+        try
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(xmlString);
+            return true;
+        }
+        catch (XmlException)
+        {
+            return false;
+        }
+    }
+    
+    public bool IsValidJson(string jsonString)
+    {
+        try
+        {
+            JsonDocument.Parse(jsonString);
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
         }
     }
 }

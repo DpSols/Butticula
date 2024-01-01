@@ -2,6 +2,9 @@ namespace JsonServices.Formatter;
 
 public interface IPrettifier
 {
-    string Prettify();
-    Prettifier SetText(string json);
+    string PrettifyJson();
+    string PrettifyXml();
+    Prettifier SetText(string text);
+    bool IsValidXml(string xmlString);
+    bool IsValidJson(string jsonString);
 }

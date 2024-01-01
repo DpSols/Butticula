@@ -2,7 +2,7 @@ namespace JsonServices;
 
 public class FileTempService : IFileService
 {
-    public string GetFilePath(string file) => Path.Combine(@"C:\MyTemp", file + ".json");
+    public string GetFilePath(string file) => Path.Combine(Environment.CurrentDirectory, file + ".json");
 
     public void FileWriter(string textContent, string fileName)
     {

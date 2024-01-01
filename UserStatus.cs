@@ -2,7 +2,9 @@ namespace FileExchanger;
 
 internal enum UserStatus
 {
-    WaitingForFilename,
+    WaitingForJsonFilename,
+    WaitingForXmlFilename,
     JsonPrettified,
+    XmlPrettified,
     FileNamed
 }
